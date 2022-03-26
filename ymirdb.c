@@ -347,6 +347,18 @@ void del_darray(darray *arrp) {
     free(arrp);
 }
 
+/* Pointer helper functions */
+
+int compare_ptr(const void *p1, const void *p2) {
+    if (p1 < p2) { return -1; }
+    if (p1 > p2) { return 1; }
+    return 0;
+}
+
+void *clone_ptr(void *p) {
+    return p;
+}
+
 /* Database */
 
 typedef enum ele_type { INTEGER, ENTRY } ele_type;
@@ -478,12 +490,6 @@ void entry_add_ref(entry *ent1, entry *ent2) {
         darray_append(ent1->forward, ent);
         darray_append(ent->backward, ent1);
     }
-}
-
-int compare_ptr(const void *p1, const void *p2) {
-    if (p1 < p2) { return -1; }
-    if (p1 > p2) { return 1; }
-    return 0;
 }
 
 void entry_del_ref(entry *ent1, entry *ent2) {
@@ -898,7 +904,11 @@ void command_forward(char *args, darray *snapshots, darray *entries) {
     if (ent->forward->len == 0) {
         printf("nil\n");
     } else {
-        darray_foreach(ent->forward, (consumer) entry_print_key);
+        darray *sorted = darray_clone(ent->forward, clone_ptr);
+        darray_sort(sorted, (comparator) entry_key_cmp);
+        darray_unique(sorted, (comparator) entry_key_cmp);
+        darray_foreach(sorted, (consumer) entry_print_key);
+        del_darray(sorted);
     }
 }
 
@@ -911,7 +921,11 @@ void command_backward(char *args, darray *snapshots, darray *entries) {
     if (ent->backward->len == 0) {
         printf("nil\n");
     } else {
-        darray_foreach(ent->backward, (consumer) entry_print_key);
+        darray *sorted = darray_clone(ent->backward, clone_ptr);
+        darray_sort(sorted, (comparator) entry_key_cmp);
+        darray_unique(sorted, (comparator) entry_key_cmp);
+        darray_foreach(sorted, (consumer) entry_print_key);
+        del_darray(sorted);
     }
 }
 
