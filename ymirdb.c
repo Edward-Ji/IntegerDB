@@ -950,11 +950,45 @@ void command_pop(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_drop(char *args, darray *snapshots, darray *entries) {
+    size_t idx, snap_idx = 0;
 
+    if (!parse_index(args, -1, &idx)) {
+        printf("invalid index\n");
+        return;
+    }
+    if (!darray_search(snapshots,
+                &idx, (comparator) snapshot_has_id, &snap_idx)) {
+        printf("no such snapshot\n");
+        return;
+    }
+
+    darray_pop(snapshots, snap_idx);
+
+    printf("ok\n");
 }
 
 void command_rollback(char *args, darray *snapshots, darray *entries) {
+    size_t idx, snap_idx = 0;
 
+    if (!parse_index(args, -1, &idx)) {
+        printf("invalid index\n");
+        return;
+    }
+    if (!darray_search(snapshots,
+                &idx, (comparator) snapshot_has_id, &snap_idx)) {
+        printf("no such snapshot\n");
+        return;
+    }
+
+    snapshot *snap = darray_get(snapshots, snap_idx);
+    darray *clone = entries_clone(snap->entries);
+    darray_clear(entries);
+    darray_extend(entries, clone);
+    del_darray(clone);
+
+    darray_pop_range(snapshots, snap_idx + 1, snapshots->len);
+
+    printf("ok\n");
 }
 
 void command_checkout(char *args, darray *snapshots, darray *entries) {
