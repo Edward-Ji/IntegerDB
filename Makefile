@@ -3,7 +3,7 @@ TARGET = ymirdb
 CC = gcc
 
 CFLAGS = -c -Wall -Wvla -Werror -g -std=gnu11 -Werror=format-security
-LDFLAGS = -fsanitize=address,leak
+LDFLAGS = -fsanitize=address,leak -static-libasan
 SRC = ymirdb.c
 OBJ = $(SRC:.c=.o)
 
