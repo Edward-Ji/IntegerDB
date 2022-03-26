@@ -428,7 +428,7 @@ void element_agg_min(const element *ele, int *min) {
     int val;
     if (ele->type == INTEGER) {
         val = ele->value.num;
-    } else if (ele->type == ENTRY) {
+    } else {
         val = entry_min(ele->value.entry);
     }
     if (val < *min) {
@@ -440,7 +440,7 @@ void element_agg_max(const element *ele, int *max) {
     int val;
     if (ele->type == INTEGER) {
         val = ele->value.num;
-    } else if (ele->type == ENTRY) {
+    } else {
         val = entry_max(ele->value.entry);
     }
     if (val > *max) {
@@ -451,7 +451,7 @@ void element_agg_max(const element *ele, int *max) {
 void element_agg_sum(const element *ele, long long *sum) {
     if (ele->type == INTEGER) {
         *sum += ele->value.num;
-    } else if (ele->type == ENTRY) {
+    } else {
         *sum += entry_sum(ele->value.entry);
     }
 }
@@ -459,7 +459,7 @@ void element_agg_sum(const element *ele, long long *sum) {
 void element_agg_len(const element *ele, size_t *len) {
     if (ele->type == INTEGER) {
         (*len)++;
-    } else if (ele->type == ENTRY) {
+    } else {
         *len += entry_len(ele->value.entry);
     }
 }
