@@ -371,7 +371,7 @@ struct entry {
 };
 
 struct snapshot {
-    int id;
+    size_t id;
     darray *entries;
 };
 
@@ -462,6 +462,16 @@ void element_agg_len(const element *ele, size_t *len) {
     } else if (ele->type == ENTRY) {
         *len += entry_len(ele->value.entry);
     }
+}
+
+element *element_find_copy(element *ele) {
+    if (ele->type == INTEGER) {
+        return new_int_ele(ele->value.num);
+    } else if (ele->type == ENTRY) {
+        return new_ent_ele(entry_find_copy(ele->value.entry));
+    }
+
+    return NULL;
 }
 
 entry *new_entry(char *key) {
@@ -578,6 +588,32 @@ size_t entry_len(entry *ent) {
     return len;
 }
 
+entry *entry_empty_copy(entry *ent) {
+    entry *cpy = (entry *) malloc(sizeof(entry));
+    strcpy(cpy->key, ent->key);
+
+    return cpy;
+}
+
+entry *_entry_find_copy(entry *ent, darray *entries) {
+    static darray *pool = NULL;
+    if (ent == NULL) {
+        pool = entries;
+    }
+
+    size_t idx;
+    darray_search(pool, ent->key, (comparator) entry_has_key, &idx);
+    return darray_get(pool, idx);
+}
+
+void entry_find_pool(darray *pool) {
+    _entry_find_copy(NULL, pool);
+}
+
+entry *entry_find_copy(entry *ent) {
+    return _entry_find_copy(ent, NULL);
+}
+
 void del_entry(entry *ent) {
     del_darray(ent->elements);
     del_darray(ent->forward);
@@ -586,24 +622,50 @@ void del_entry(entry *ent) {
     free(ent);
 }
 
-snapshot *new_snapshot(int id, darray *entries) {
+darray *entries_clone(darray *entries) {
+    darray *clone = darray_clone(entries, (unary) entry_empty_copy);
+
+    entry_find_pool(clone);
+
+    for (size_t i = 0; i < entries->len; i++) {
+        entry *ent_ori = darray_get(entries, i);
+        entry *ent_cpy = darray_get(clone, i);
+
+        ent_cpy->elements = darray_clone(ent_ori->elements,
+                (unary) element_find_copy);
+
+        ent_cpy->forward = darray_clone(ent_ori->forward,
+                (unary) entry_find_copy);
+        ent_cpy->backward = darray_clone(ent_ori->backward,
+                (unary) entry_find_copy);
+    }
+    entry_find_pool(NULL);
+
+    return clone;
+}
+
+snapshot *new_snapshot(darray *entries) {
+    static size_t new_id = 1;
     snapshot *snap = (snapshot *) malloc(sizeof(snapshot));
 
     if (snap != NULL) {
-        snap->id = id;
-        snap->entries = new_darray((consumer) del_entry);
+        snap->id = new_id++;
+        snap->entries = entries_clone(entries);
     }
 
     return snap;
 }
 
 void snapshot_print(snapshot *snap) {
-    printf("snapshot %d\n", snap->id);
+    printf("snapshot %zu\n", snap->id);
+}
+
+int snapshot_has_id(const snapshot *snap, const size_t *id) {
+    return snap->id != *id;
 }
 
 void del_snapshot(snapshot *snap) {
     del_darray(snap->entries);
-
     free(snap);
 }
 
@@ -867,11 +929,33 @@ void command_rollback(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_checkout(char *args, darray *snapshots, darray *entries) {
+    size_t idx, snap_idx = 0;
 
+    if (!parse_index(args, -1, &idx)) {
+        printf("invalid index\n");
+        return;
+    }
+    if (!darray_search(snapshots,
+                &idx, (comparator) snapshot_has_id, &snap_idx)) {
+        printf("no such snapshot\n");
+        return;
+    }
+
+    snapshot *snap = darray_get(snapshots, snap_idx);
+    darray *clone = entries_clone(snap->entries);
+    darray_clear(entries);
+    darray_extend(entries, clone);
+    del_darray(clone);
+
+    printf("ok\n");
 }
 
 void command_snapshot(char *args, darray *snapshots, darray *entries) {
+    snapshot *snap = new_snapshot(entries);
+    darray_append(snapshots, snap);
 
+    printf("saved as ");
+    snapshot_print(snap);
 }
 
 void command_min(char *args, darray *snapshots, darray *entries) {

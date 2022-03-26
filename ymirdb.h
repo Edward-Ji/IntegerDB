@@ -189,6 +189,14 @@ size_t entry_len(entry *ent);
 
 entry *entry_empty_copy(entry *ent);
 
+/*
+ * The find pool function accepts an array of entries as the find pool for the
+ * find copy function. The find copy function accepts an entry and returns the
+ * entry with the same key in the pool.
+ */
+void entry_find_pool(darray *pool);
+entry *entry_find_copy(entry *ent);
+
 void del_entry(entry *ent);
 
 /*
@@ -198,9 +206,11 @@ void del_entry(entry *ent);
  */
 darray *entries_clone(darray *entries);
 
-snapshot *new_snapshot(int id, darray *entries);
+snapshot *new_snapshot(darray *entries);
 
 void snapshot_print(snapshot *snap);
+
+int snapshot_has_id(const snapshot *snap, const size_t *id);
 
 void del_snapshot(snapshot *snap);
 
