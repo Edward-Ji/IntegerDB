@@ -225,9 +225,9 @@ int parse_int(char *str, int *resp);
 
 /*
  * Given a non-negative integer string of base 10, converts it to a unsigned
- * size type and stores it in the result pointer. The number must be smaller
- * than the maximum value provided. Returns 1 if the conversion is successful, 0
- * otherwise.
+ * size type and stores it in the result pointer. The number must be greater
+ * than zero, and smaller than or equal to the maximum value provided. Returns 1
+ * if the conversion is successful, 0 otherwise.
  */
 int parse_index(char *str, size_t max, size_t *resp);
 

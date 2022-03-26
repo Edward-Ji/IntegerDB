@@ -714,7 +714,7 @@ int parse_int(char *str, int *resp) {
 int parse_index(char *str, size_t max, size_t *resp) {
     char *end;
     unsigned long num = strtoul(str, &end, 10);
-    if (end == str || *end != '\0' || num >= max) {
+    if (end == str || *end != '\0' || num == 0 || num > max) {
         return 0;
     }
     *resp = num;
@@ -913,9 +913,10 @@ void command_pick(char *args, darray *snapshots, darray *entries) {
     }
 
     if (!parse_index(args, ent->elements->len, &idx)) {
-        printf("invalid index");
+        printf("index out of range\n");
         return;
     }
+    idx--;
 
     element_print(darray_get(ent->elements, idx));
     putchar('\n');
@@ -930,9 +931,10 @@ void command_pluck(char *args, darray *snapshots, darray *entries) {
     }
 
     if (!parse_index(args, ent->elements->len, &idx)) {
-        printf("invalid index\n");
+        printf("index out of range\n");
         return;
     }
+    idx--;
 
     element *ele = darray_get(ent->elements, idx);
     element_print(ele);
@@ -965,7 +967,7 @@ void command_drop(char *args, darray *snapshots, darray *entries) {
     size_t idx, snap_idx = 0;
 
     if (!parse_index(args, -1, &idx)) {
-        printf("invalid index\n");
+        printf("index out of range\n");
         return;
     }
     if (!darray_search(snapshots,
@@ -983,7 +985,7 @@ void command_rollback(char *args, darray *snapshots, darray *entries) {
     size_t idx, snap_idx = 0;
 
     if (!parse_index(args, -1, &idx)) {
-        printf("invalid index\n");
+        printf("index out of range\n");
         return;
     }
     if (!darray_search(snapshots,
@@ -1007,7 +1009,7 @@ void command_checkout(char *args, darray *snapshots, darray *entries) {
     size_t idx, snap_idx = 0;
 
     if (!parse_index(args, -1, &idx)) {
-        printf("invalid index\n");
+        printf("index out of range\n");
         return;
     }
     if (!darray_search(snapshots,
