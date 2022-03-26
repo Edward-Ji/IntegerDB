@@ -13,19 +13,13 @@
 #include <string.h>
 
 #include "help.h"
+#include "ymirdb.h"
 
 #define KEYLEN (16)
 #define BUFLEN (1024)
 #define WHITESPACE " \t\r\n\v\f"
 
 /* Dynamic array of void pointers */
-
-typedef void (*consumer)(void *);
-typedef void (*aggregate)(const void *, void *);
-typedef int (*comparator)(const void *, const void *);
-typedef void *(*unary)(void *);
-
-typedef struct darray darray;
 
 struct darray {
     void **itempp;
@@ -361,12 +355,6 @@ void *clone_ptr(void *p) {
 
 /* Database */
 
-typedef enum ele_type { INTEGER, ENTRY } ele_type;
-
-typedef struct element element;
-typedef struct entry entry;
-typedef struct snapshot snapshot;
-
 struct element {
     enum ele_type type;
     union {
@@ -449,10 +437,6 @@ entry *new_entry(char *key) {
     return ent;
 }
 
-int entry_has_key(entry *ent, char *key) {
-    return strcmp(ent->key, key);
-}
-
 void entry_print_key(entry *ent) {
     printf("%s\n", ent->key);
 }
@@ -476,6 +460,10 @@ void entry_print(entry *ent) {
 
 int entry_is_simple(entry *ent) {
     return darray_len(ent->forward) == 0;
+}
+
+int entry_has_key(entry *ent, char *key) {
+    return strcmp(ent->key, key);
 }
 
 int entry_key_cmp(const entry *ent1, const entry *ent2) {
@@ -553,11 +541,6 @@ void del_snapshot(snapshot *snap) {
 
 /* Helper parsers */
 
-/*
- * Given an integer string of base 10, converts it to an integer and stores it
- * in the result pointer. Returns 1 if the conversion is successful, 0
- * otherwise.
- */
 int parse_int(char *str, int *resp) {
     char *end;
     long num = strtol(str, &end, 10);
@@ -568,12 +551,6 @@ int parse_int(char *str, int *resp) {
     return 1;
 }
 
-/*
- * Given a non-negative integer string of base 10, converts it to a unsigned
- * size type and stores it in the result pointer. The number must be smaller
- * than the maximum value provided. Returns 1 if the conversion is successful, 0
- * otherwise.
- */
 int parse_index(char *str, size_t max, size_t *resp) {
     char *end;
     unsigned long num = strtoul(str, &end, 10);
@@ -584,11 +561,6 @@ int parse_index(char *str, size_t max, size_t *resp) {
     return 1;
 }
 
-/*
- * Parse the elements in an argument list and return a dynamic array containing
- * all the elements. If an error occurred while parsing, the function returns
- * `NULL`.
- */
 darray *parse_elements(char **strp, darray *entries) {
     darray *elements = new_darray(free);
 
@@ -623,10 +595,6 @@ darray *parse_elements(char **strp, darray *entries) {
     return elements;
 }
 
-/*
- * Parse a string into an entry with such key. If an error occurred while
- * parsing, the function returns `NULL`.
- */
 entry *parse_entry(char **strp, darray *entries) {
     char *key = strsep(strp, WHITESPACE);
     size_t idx;
