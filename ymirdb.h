@@ -161,6 +161,11 @@ int element_has_type(const element *ele, ele_type *type);
 
 int element_int_cmp(const element *ele1, const element *ele2);
 
+void element_agg_min(const element *ele, int *min);
+void element_agg_max(const element *ele, int *max);
+void element_agg_sum(const element *ele, long long *sum);
+void element_agg_len(const element *ele, size_t *len);
+
 entry *new_entry(char *key);
 
 void entry_print_key(entry *ent);
@@ -175,6 +180,11 @@ void entry_add_ref(entry *ent1, entry *ent2);
 void entry_del_ref(entry *ent1, entry *ent2);
 void entry_ref_all(entry *ent, darray *elements);
 void entry_deref_all(entry *ent);
+
+int entry_min(entry *ent);
+int entry_max(entry *ent);
+long long entry_sum(entry *ent);
+size_t entry_len(entry *ent);
 
 entry *entry_empty_copy(entry *ent);
 

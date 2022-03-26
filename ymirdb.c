@@ -424,6 +424,46 @@ int element_int_cmp(const element *ele1, const element *ele2) {
     return 0;
 }
 
+void element_agg_min(const element *ele, int *min) {
+    int val;
+    if (ele->type == INTEGER) {
+        val = ele->value.num;
+    } else if (ele->type == ENTRY) {
+        val = entry_min(ele->value.entry);
+    }
+    if (val < *min) {
+        *min = val;
+    }
+}
+
+void element_agg_max(const element *ele, int *max) {
+    int val;
+    if (ele->type == INTEGER) {
+        val = ele->value.num;
+    } else if (ele->type == ENTRY) {
+        val = entry_max(ele->value.entry);
+    }
+    if (val > *max) {
+        *max = val;
+    }
+}
+
+void element_agg_sum(const element *ele, long long *sum) {
+    if (ele->type == INTEGER) {
+        *sum += ele->value.num;
+    } else if (ele->type == ENTRY) {
+        *sum += entry_sum(ele->value.entry);
+    }
+}
+
+void element_agg_len(const element *ele, size_t *len) {
+    if (ele->type == INTEGER) {
+        (*len)++;
+    } else if (ele->type == ENTRY) {
+        *len += entry_len(ele->value.entry);
+    }
+}
+
 entry *new_entry(char *key) {
     entry *ent = (entry *) malloc(sizeof(entry));
 
@@ -508,6 +548,34 @@ void entry_deref_all(entry *ent) {
     for (size_t i = 0; i < ent->forward->len; i++) {
         entry_del_ref(ent, darray_get(ent->forward, i));
     }
+}
+
+int entry_min(entry *ent) {
+    int min = INT_MAX;
+    darray_aggregate(ent->elements, &min, (aggregate) element_agg_min);
+
+    return min;
+}
+
+int entry_max(entry *ent) {
+    int max = INT_MIN;
+    darray_aggregate(ent->elements, &max, (aggregate) element_agg_max);
+
+    return max;
+}
+
+long long entry_sum(entry *ent) {
+    long long sum = 0;
+    darray_aggregate(ent->elements, &sum, (aggregate) element_agg_sum);
+
+    return sum;
+}
+
+size_t entry_len(entry *ent) {
+    size_t len = 0;
+    darray_aggregate(ent->elements, &len, (aggregate) element_agg_len);
+
+    return len;
 }
 
 void del_entry(entry *ent) {
@@ -806,19 +874,35 @@ void command_snapshot(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_min(char *args, darray *snapshots, darray *entries) {
-
+    entry *ent;
+    if ((ent = parse_entry(&args, entries)) == NULL) {
+        return;
+    }
+    printf("%d\n", entry_min(ent));
 }
 
 void command_max(char *args, darray *snapshots, darray *entries) {
-
+    entry *ent;
+    if ((ent = parse_entry(&args, entries)) == NULL) {
+        return;
+    }
+    printf("%d\n", entry_max(ent));
 }
 
 void command_sum(char *args, darray *snapshots, darray *entries) {
-
+    entry *ent;
+    if ((ent = parse_entry(&args, entries)) == NULL) {
+        return;
+    }
+    printf("%lld\n", entry_sum(ent));
 }
 
 void command_len(char *args, darray *snapshots, darray *entries) {
-
+    entry *ent;
+    if ((ent = parse_entry(&args, entries)) == NULL) {
+        return;
+    }
+    printf("%zu\n", entry_len(ent));
 }
 
 void command_rev(char *args, darray *snapshots, darray *entries) {
