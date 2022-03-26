@@ -714,8 +714,9 @@ void command_del(char *args, darray *snapshots, darray *entries) {
     size_t idx;
     darray_search(entries, ent, compare_ptr, &idx);
     darray_pop(entries, idx);
-
     entry_deref_all(ent);
+
+    printf("ok\n");
 }
 
 void command_purge(char *args, darray *snapshots, darray *entries) {
@@ -826,7 +827,7 @@ void command_pluck(char *args, darray *snapshots, darray *entries) {
     }
 
     if (!parse_index(args, ent->elements->len, &idx)) {
-        printf("invalid index");
+        printf("invalid index\n");
         return;
     }
 
