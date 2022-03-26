@@ -775,11 +775,23 @@ void command_help() {
 void command_list(char *args, darray *snapshots, darray *entries) {
     char *what = strsep(&args, WHITESPACE);
     if (strcasecmp(what, "keys") == 0) {
-        darray_foreach(entries, (consumer) entry_print_key);
+        if (entries->len == 0) {
+            printf("no keys\n");
+        } else {
+            darray_foreach(entries, (consumer) entry_print_key);
+        }
     } else if (strcasecmp(what, "entries") == 0) {
+        if (entries->len == 0) {
+            printf("no entries\n");
+        } else {
         darray_foreach(entries, (consumer) entry_print);
+        }
     } else if (strcasecmp(what, "snapshots") == 0) {
-        darray_foreach(snapshots, (consumer) snapshot_print);
+        if (snapshots->len == 0) {
+            printf("no snapshots\n");
+        } else {
+            darray_foreach(snapshots, (consumer) snapshot_print);
+        }
     } else {
         printf("invalid list command\n");
     }
