@@ -502,7 +502,7 @@ int entry_is_simple(entry *ent) {
     return darray_len(ent->forward) == 0;
 }
 
-int entry_has_key(entry *ent, char *key) {
+int entry_has_key(const entry *ent, const char *key) {
     return strcmp(ent->key, key);
 }
 

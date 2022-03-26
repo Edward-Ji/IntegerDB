@@ -173,7 +173,8 @@ void entry_print_nokey(entry *ent);
 void entry_print(entry *ent);
 
 int entry_is_simple(entry *ent);
-int entry_has_key(entry *ent, char *key);
+
+int entry_has_key(const entry *ent, const char *key);
 int entry_key_cmp(const entry *ent, const entry *ent2);
 
 void entry_add_ref(entry *ent1, entry *ent2);
