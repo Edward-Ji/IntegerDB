@@ -1,0 +1,7 @@
+min
+min a
+set a 1 2 3
+min a
+set b 4 5 a
+min b
+bye

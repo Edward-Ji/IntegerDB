@@ -1,0 +1,12 @@
+set a
+push
+push b
+push a
+push a 3 2 1
+get a
+push a b
+get a
+set b
+push a b
+get a
+bye

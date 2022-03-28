@@ -1,0 +1,9 @@
+set a
+snapshot
+del a
+snapshot
+list snapshots
+rollback
+list entries
+list snapshots
+bye

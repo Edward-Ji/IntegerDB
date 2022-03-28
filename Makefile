@@ -1,24 +1,23 @@
-TARGET = ymirdb
-
 CC = gcc
+CFLAGS = -O2 -g -Wall -Wvla -Werror -std=gnu11
+SANFLAGS = -fsanitize=address,leak -static-libasan
+COVFLAGS = -fprofile-arcs -ftest-coverage
 
-CFLAGS = -c -Wall -Wvla -Werror -g -std=gnu11 -Werror=format-security
-LDFLAGS = -fsanitize=address,leak -static-libasan
+TARGET = ymirdb
+COVTARGET = ymirdb_cov
 SRC = ymirdb.c
-OBJ = $(SRC:.c=.o)
 
-all:$(TARGET)
+all: $(TARGET)
 
-$(TARGET):$(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $(OBJ)
-
-.SUFFIXES: .c .o
-
-.c.o:
-	 $(CC) $(CFLAGS) $<
-
-test:
+cov: $(COVTARGET)
 	./run_test
+	gcov $(SRC)
+
+$(COVTARGET): $(SRC)
+	$(CC) $(CFLAGS) $(COVFLAGS) $^ -o $@
+
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) $(SANFLAGS) $^ -o $@
 
 clean:
-	rm -f *.o *.obj $(TARGET)
+	rm -f *.o *.gc* $(TARGET) $(COVTARGET)

@@ -1,0 +1,8 @@
+set a 10 9 8 7 6 5 4 3 2 1 0
+sort
+sort b
+sort a
+get a
+set b a
+sort b
+bye

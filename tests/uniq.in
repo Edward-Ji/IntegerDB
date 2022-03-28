@@ -1,0 +1,5 @@
+set a 1 2 2 3 3 3
+uniq
+uniq b
+uniq a
+bye

@@ -1,0 +1,7 @@
+set a
+snapshot
+set b
+snapshot
+set c
+snapshot
+bye

@@ -1,0 +1,5 @@
+get
+set a 1 2 3
+get b
+get a
+bye

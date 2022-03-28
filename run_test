@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Not implemented"
-false
+test_dir='./tests'
+
+for in_file in $(find "${test_dir}" -name '*.in'); do
+    out_file="${test_dir}/$(basename $in_file .in).out"
+    ./ymirdb_cov < "${in_file}" | diff "${out_file}" -
+    if [[ $? ]]; then
+        echo "passed $(basename $in_file .in)"
+    fi
+done

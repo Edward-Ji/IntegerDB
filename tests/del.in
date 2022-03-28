@@ -1,0 +1,7 @@
+set a
+set b a
+del c
+del a
+del b
+del a
+bye

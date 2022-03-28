@@ -1,0 +1,7 @@
+max
+max a
+set a 1 2 9
+max a
+set b 4 5 a
+max b
+bye

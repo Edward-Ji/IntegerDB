@@ -1,0 +1,4 @@
+set a 7 37 27 47 87 57 67 17
+rev a
+get a
+bye

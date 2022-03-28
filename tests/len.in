@@ -1,0 +1,7 @@
+len
+len a
+set a 1 2 3
+len a
+set b 4 5 a
+len b
+bye

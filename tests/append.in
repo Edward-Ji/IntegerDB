@@ -1,0 +1,10 @@
+set a
+append
+append b
+append a
+append a 1
+append a b
+set b
+append a b
+get a
+bye

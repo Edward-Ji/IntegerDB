@@ -1,0 +1,14 @@
+set a
+set b a
+snapshot
+set c b
+snapshot
+purge c
+purge b
+purge a
+drop 2
+purge b
+purge a
+drop 1
+purge a
+bye

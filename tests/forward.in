@@ -1,0 +1,6 @@
+set a
+set b a
+forward
+forward c
+forward b
+bye
