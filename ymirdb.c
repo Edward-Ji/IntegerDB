@@ -849,7 +849,36 @@ void command_del(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_purge(char *args, darray *snapshots, darray *entries) {
+    entry *ent;
+    if ((ent = parse_entry(&args, entries)) == NULL) {
+        return;
+    }
+    if (ent->backward->len != 0) {
+        return;
+    }
 
+    size_t idx;
+    darray_search(entries, ent, compare_ptr, &idx);
+    entry_deref_all(ent);
+    darray_pop(entries, idx);
+
+    for (size_t i = 0; i < snapshots->len; i++) {
+        entry *ent;
+        snapshot *snap = darray_get(snapshots, i);
+        if ((ent = parse_entry(&args, snap->entries)) == NULL) {
+            return;
+        }
+        if (ent->backward->len != 0) {
+            return;
+        }
+
+        size_t idx;
+        darray_search(entries, ent, compare_ptr, &idx);
+        entry_deref_all(ent);
+        darray_pop(entries, idx);
+    }
+
+    printf("ok\n");
 }
 
 void command_set(char *args, darray *snapshots, darray *entries) {
