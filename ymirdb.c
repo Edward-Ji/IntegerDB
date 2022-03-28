@@ -521,7 +521,7 @@ entry *new_entry(char *key) {
     entry *ent = (entry *) malloc(sizeof(entry));
 
     if (ent != NULL) {
-        strncpy(ent->key, key, KEYLEN);
+        strncpy(ent->key, key, KEYLEN - 1);
         ent->elements = new_darray(free);
         ent->forward = new_darray(NULL);
         ent->backward = new_darray(NULL);
