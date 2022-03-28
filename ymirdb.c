@@ -699,19 +699,21 @@ void print_entry_list(darray *entries) {
     putchar('\n');
 }
 
-void entries_purge_key(darray *entries, char *key) {
+int entries_purge_key(darray *entries, char *key) {
     entry *ent;
     size_t idx;
     if (!darray_search(entries, key, (comparator) entry_has_key, &idx)) {
-        return;
+        return 0;
     }
     ent = darray_get(entries, idx);
     if (ent->backward->len != 0) {
-        return;
+        return 0;
     }
     darray_search(entries, ent, compare_ptr, &idx);
     entry_deref_all(ent);
     darray_pop(entries, idx);
+
+    return 1;
 }
 
 darray *entries_clone(darray *entries) {
@@ -892,15 +894,24 @@ void command_del(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_purge(char *args, darray *snapshots, darray *entries) {
+    int purged = 0;
     char *key = strsep(&args, WHITESPACE);
-    entries_purge_key(entries, key);
+    if (entries_purge_key(entries, key)) {
+        purged = 1;
+    }
 
     for (size_t i = 0; i < snapshots->len; i++) {
         snapshot *snap = darray_get(snapshots, i);
-        entries_purge_key(snap->entries, key);
+        if (entries_purge_key(snap->entries, key)) {
+            purged = 1;
+        }
     }
 
-    printf("ok\n");
+    if (purged) {
+        printf("ok\n");
+    } else {
+        printf("not permitted\n");
+    }
 }
 
 void command_set(char *args, darray *snapshots, darray *entries) {
