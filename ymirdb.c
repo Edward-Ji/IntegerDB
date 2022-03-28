@@ -703,7 +703,7 @@ int entries_purge_key(darray *entries, char *key) {
     entry *ent;
     size_t idx;
     if (!darray_search(entries, key, (comparator) entry_has_key, &idx)) {
-        return 0;
+        return 1;
     }
     ent = darray_get(entries, idx);
     if (ent->backward->len != 0) {
@@ -894,16 +894,16 @@ void command_del(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_purge(char *args, darray *snapshots, darray *entries) {
-    int purged = 0;
+    int purged = 1;
     char *key = strsep(&args, WHITESPACE);
-    if (entries_purge_key(entries, key)) {
-        purged = 1;
+    if (!entries_purge_key(entries, key)) {
+        purged = 0;
     }
 
     for (size_t i = 0; i < snapshots->len; i++) {
         snapshot *snap = darray_get(snapshots, i);
-        if (entries_purge_key(snap->entries, key)) {
-            purged = 1;
+        if (!entries_purge_key(snap->entries, key)) {
+            purged = 0;
         }
     }
 

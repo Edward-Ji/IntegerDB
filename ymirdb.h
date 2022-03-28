@@ -201,8 +201,8 @@ void del_entry(entry *ent);
 
 /*
  * Purges entry with the given key from the array of entries only when the entry
- * has no backward references. Returns 1 if the purge is successful, 0
- * otherwise.
+ * has no backward references. Returns 0 if the key exists but the purge is
+ * unsuccessful.
  */
 int entries_purge_key(darray *entries, char *key);
 
