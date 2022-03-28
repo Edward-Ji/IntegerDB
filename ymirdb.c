@@ -751,7 +751,7 @@ snapshot *new_snapshot(darray *entries) {
 }
 
 void snapshot_print(snapshot *snap) {
-    printf("snapshot %zu\n", snap->id);
+    printf("%zu\n", snap->id);
 }
 
 int snapshot_has_id(const snapshot *snap, const size_t *id) {
@@ -1126,7 +1126,7 @@ void command_snapshot(char *args, darray *snapshots, darray *entries) {
     snapshot *snap = new_snapshot(entries);
     darray_append(snapshots, snap);
 
-    printf("saved as ");
+    printf("saved as snapshot ");
     snapshot_print(snap);
 }
 
