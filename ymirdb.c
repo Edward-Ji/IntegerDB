@@ -768,7 +768,7 @@ int parse_index(char *str, size_t max, size_t *resp) {
     return 1;
 }
 
-darray *parse_elements(char **strp, darray *entries) {
+darray *parse_elements(char **strp, darray *entries, entry *self) {
     darray *elements = new_darray(free);
 
     char *token;
@@ -786,13 +786,18 @@ darray *parse_elements(char **strp, darray *entries) {
             }
         }
         else {
-            if (darray_search(entries, token, (comparator) entry_has_key, &idx)) {
-                ele = new_ent_ele(darray_get(entries, idx));
-            } else {
+            if (!darray_search(entries, token, (comparator) entry_has_key, &idx)) {
                 printf("no such key\n");
                 del_darray(elements);
                 return NULL;
             }
+            entry *ent = darray_get(entries, idx);
+            if (ent == self) {
+                printf("not permitted\n");
+                del_darray(elements);
+                return NULL;
+            }
+            ele = new_ent_ele(ent);
         }
         darray_append(elements, ele);
     }
@@ -910,11 +915,6 @@ void command_set(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    darray *elements;
-    if ((elements = parse_elements(&args, entries)) == NULL) {
-        return;
-    }
-
     char exist;
     size_t idx = 0;
     entry *ent;
@@ -925,6 +925,11 @@ void command_set(char *args, darray *snapshots, darray *entries) {
         darray_clear(ent->elements);
     } else {
         ent = new_entry(key);
+    }
+
+    darray *elements;
+    if ((elements = parse_elements(&args, entries, ent)) == NULL) {
+        return;
     }
 
     if (!darray_extend(ent->elements, elements)) {
@@ -949,7 +954,7 @@ void command_push(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    darray *elements = parse_elements(&args, entries);
+    darray *elements = parse_elements(&args, entries, ent);
 
     darray_reverse(elements);
     if (!darray_extend_at(ent->elements, 0, elements)) {
@@ -969,7 +974,7 @@ void command_append(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    darray *elements = parse_elements(&args, entries);
+    darray *elements = parse_elements(&args, entries, ent);
     if (!darray_extend(ent->elements, elements)) {
         printf("out of memory\n");
         return;

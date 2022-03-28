@@ -234,9 +234,9 @@ int parse_index(char *str, size_t max, size_t *resp);
 /*
  * Parse the elements in an argument list and return a dynamic array containing
  * all the elements. If an error occurred while parsing, the function returns
- * `NULL`.
+ * `NULL`. Entry elements can not be the same as self.
  */
-darray *parse_elements(char **strp, darray *entries);
+darray *parse_elements(char **strp, darray *entries, entry *self);
 
 /*
  * Parse a string into an entry with such key. If an error occurred while
