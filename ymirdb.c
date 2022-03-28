@@ -677,6 +677,23 @@ void del_entry(entry *ent) {
     free(ent);
 }
 
+void print_entry_list(darray *entries) {
+    entry *ent_ref;
+    if (entries->len != 0) {
+        ent_ref = darray_get(entries, 0);
+        fputs(ent_ref->key, stdout);
+        for (size_t i = 1; i < entries->len; i++) {
+            printf(", ");
+            ent_ref = darray_get(entries, i);
+            fputs(ent_ref->key, stdout);
+        }
+    } else {
+        printf("nil");
+    }
+
+    putchar('\n');
+}
+
 darray *entries_clone(darray *entries) {
     darray *clone = darray_clone(entries, (unary) entry_empty_copy);
 
@@ -1175,7 +1192,9 @@ void command_forward(char *args, darray *snapshots, darray *entries) {
         darray *sorted = darray_clone(ent->forward, clone_ptr);
         darray_sort(sorted, (comparator) entry_key_cmp);
         darray_unique(sorted, (comparator) entry_key_cmp);
-        darray_foreach(sorted, (consumer) entry_print_key);
+
+        print_entry_list(sorted);
+
         del_darray(sorted);
     }
 }
@@ -1192,7 +1211,9 @@ void command_backward(char *args, darray *snapshots, darray *entries) {
         darray *sorted = darray_clone(ent->backward, clone_ptr);
         darray_sort(sorted, (comparator) entry_key_cmp);
         darray_unique(sorted, (comparator) entry_key_cmp);
-        darray_foreach(sorted, (consumer) entry_print_key);
+
+        print_entry_list(sorted);
+
         del_darray(sorted);
     }
 }
