@@ -51,5 +51,14 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# Compiled eexecutables
+# Coverage files
+*.gcov
+*.gcda
+*.gcno
+
+# Compiled executables
 ymirdb
+ymirdb_cov
+
+# Vim session file
+Session.vim
