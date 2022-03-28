@@ -776,6 +776,10 @@ int parse_int(char *str, int *resp) {
 }
 
 int parse_index(char *str, size_t max, size_t *resp) {
+    if (str == NULL) {
+        return 0;
+    }
+
     char *end;
     unsigned long num = strtoul(str, &end, 10);
     if (end == str || *end != '\0' || num == 0 || num > max) {
