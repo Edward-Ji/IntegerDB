@@ -699,6 +699,21 @@ void print_entry_list(darray *entries) {
     putchar('\n');
 }
 
+void entries_purge_key(darray *entries, char *key) {
+    entry *ent;
+    size_t idx;
+    if (!darray_search(entries, key, (comparator) entry_has_key, &idx)) {
+        return;
+    }
+    ent = darray_get(entries, idx);
+    if (ent->backward->len != 0) {
+        return;
+    }
+    darray_search(entries, ent, compare_ptr, &idx);
+    entry_deref_all(ent);
+    darray_pop(entries, idx);
+}
+
 darray *entries_clone(darray *entries) {
     darray *clone = darray_clone(entries, (unary) entry_empty_copy);
 
@@ -877,30 +892,12 @@ void command_del(char *args, darray *snapshots, darray *entries) {
 }
 
 void command_purge(char *args, darray *snapshots, darray *entries) {
-    entry *ent;
-    size_t idx;
-
-    if ((ent = parse_entry(&args, entries)) != NULL &&
-            ent->backward->len == 0) {
-        darray_search(entries, ent, compare_ptr, &idx);
-        entry_deref_all(ent);
-        darray_pop(entries, idx);
-    }
+    char *key = strsep(&args, WHITESPACE);
+    entries_purge_key(entries, key);
 
     for (size_t i = 0; i < snapshots->len; i++) {
-        entry *ent;
         snapshot *snap = darray_get(snapshots, i);
-        if ((ent = parse_entry(&args, snap->entries)) == NULL) {
-            continue;
-        }
-        if (ent->backward->len != 0) {
-            continue;
-        }
-
-        size_t idx;
-        darray_search(entries, ent, compare_ptr, &idx);
-        entry_deref_all(ent);
-        darray_pop(entries, idx);
+        entries_purge_key(snap->entries, key);
     }
 
     printf("ok\n");
