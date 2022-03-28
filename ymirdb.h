@@ -110,7 +110,7 @@ int darray_unique(darray *arrp, comparator fp);
  * 0 if the items are equal, and a positive number if the first item is greater.
  *
  * The sorting algorithm is adopted from
- * https://github.com/DaniloNovakovic/sorting-algorithms-in-c
+ * https://gist.github.com/adwiteeya3/f1797534506be672b591f465c3366643/
  */
 int darray_sort(darray *arrp, comparator fp);
 
