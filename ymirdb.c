@@ -811,7 +811,6 @@ entry *parse_entry(char **strp, darray *entries) {
     char *key = strsep(strp, WHITESPACE);
     size_t idx;
     if (!darray_search(entries, key, (comparator) entry_has_key, &idx)) {
-        printf("no such key\n");
         return NULL;
     }
 
@@ -852,6 +851,7 @@ void command_list(char *args, darray *snapshots, darray *entries) {
 void command_get(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
     entry_print_nokey(ent);
@@ -860,6 +860,7 @@ void command_get(char *args, darray *snapshots, darray *entries) {
 void command_del(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
     if (ent->backward->len != 0) {
@@ -877,26 +878,23 @@ void command_del(char *args, darray *snapshots, darray *entries) {
 
 void command_purge(char *args, darray *snapshots, darray *entries) {
     entry *ent;
-    if ((ent = parse_entry(&args, entries)) == NULL) {
-        return;
-    }
-    if (ent->backward->len != 0) {
-        return;
-    }
-
     size_t idx;
-    darray_search(entries, ent, compare_ptr, &idx);
-    entry_deref_all(ent);
-    darray_pop(entries, idx);
+
+    if ((ent = parse_entry(&args, entries)) != NULL &&
+            ent->backward->len == 0) {
+        darray_search(entries, ent, compare_ptr, &idx);
+        entry_deref_all(ent);
+        darray_pop(entries, idx);
+    }
 
     for (size_t i = 0; i < snapshots->len; i++) {
         entry *ent;
         snapshot *snap = darray_get(snapshots, i);
         if ((ent = parse_entry(&args, snap->entries)) == NULL) {
-            return;
+            continue;
         }
         if (ent->backward->len != 0) {
-            return;
+            continue;
         }
 
         size_t idx;
@@ -951,6 +949,7 @@ void command_set(char *args, darray *snapshots, darray *entries) {
 void command_push(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -971,6 +970,7 @@ void command_push(char *args, darray *snapshots, darray *entries) {
 void command_append(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -991,6 +991,7 @@ void command_pick(char *args, darray *snapshots, darray *entries) {
     size_t idx;
 
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1009,6 +1010,7 @@ void command_pluck(char *args, darray *snapshots, darray *entries) {
     size_t idx;
 
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1032,6 +1034,7 @@ void command_pop(char *args, darray *snapshots, darray *entries) {
     entry *ent;
 
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1120,6 +1123,7 @@ void command_snapshot(char *args, darray *snapshots, darray *entries) {
 void command_min(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
     printf("%d\n", entry_min(ent));
@@ -1128,6 +1132,7 @@ void command_min(char *args, darray *snapshots, darray *entries) {
 void command_max(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
     printf("%d\n", entry_max(ent));
@@ -1136,6 +1141,7 @@ void command_max(char *args, darray *snapshots, darray *entries) {
 void command_sum(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
     printf("%lld\n", entry_sum(ent));
@@ -1144,6 +1150,7 @@ void command_sum(char *args, darray *snapshots, darray *entries) {
 void command_len(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
     printf("%zu\n", entry_len(ent));
@@ -1152,6 +1159,7 @@ void command_len(char *args, darray *snapshots, darray *entries) {
 void command_rev(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1166,6 +1174,7 @@ void command_rev(char *args, darray *snapshots, darray *entries) {
 void command_uniq(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1180,6 +1189,7 @@ void command_uniq(char *args, darray *snapshots, darray *entries) {
 void command_sort(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1194,6 +1204,7 @@ void command_sort(char *args, darray *snapshots, darray *entries) {
 void command_forward(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1213,6 +1224,7 @@ void command_forward(char *args, darray *snapshots, darray *entries) {
 void command_backward(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
@@ -1232,6 +1244,7 @@ void command_backward(char *args, darray *snapshots, darray *entries) {
 void command_type(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     if ((ent = parse_entry(&args, entries)) == NULL) {
+        printf("no such key\n");
         return;
     }
 
