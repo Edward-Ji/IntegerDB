@@ -1083,6 +1083,7 @@ void command_rollback(char *args, darray *snapshots, darray *entries) {
     darray *clone = entries_clone(snap->entries);
     darray_clear(entries);
     darray_extend(entries, clone);
+    darray_set_item_free(clone, NULL);
     del_darray(clone);
 
     darray_pop_range(snapshots, snap_idx + 1, snapshots->len);
@@ -1107,6 +1108,7 @@ void command_checkout(char *args, darray *snapshots, darray *entries) {
     darray *clone = entries_clone(snap->entries);
     darray_clear(entries);
     darray_extend(entries, clone);
+    darray_set_item_free(clone, NULL);
     del_darray(clone);
 
     printf("ok\n");
