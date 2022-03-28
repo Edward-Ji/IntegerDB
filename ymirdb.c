@@ -150,6 +150,24 @@ int darray_pop(darray *arrp, size_t index) {
     return 1;
 }
 
+int _compare_voidp(const void *p1, const void *p2) {
+    return p1 != p2;
+}
+
+int darray_pop_exact(darray *arrp, void *itemp) {
+    if (arrp == NULL) {
+        return 0;
+    }
+
+    size_t idx;
+    if (!darray_search(arrp, itemp, _compare_voidp, &idx)) {
+        return 0;
+    }
+    darray_pop(arrp, idx);
+
+    return 1;
+}
+
 int darray_pop_range(darray *arrp, size_t start, size_t end) {
     if (arrp == NULL || start > end || end > arrp->len) {
         return 0;
@@ -563,39 +581,26 @@ void entry_add_ref(entry *ent1, entry *ent2) {
 }
 
 void entry_del_ref(entry *ent1, entry *ent2) {
-    size_t idx;
-    darray_search(ent1->forward, ent2, compare_ptr, &idx);
-    darray_pop(ent1->forward, idx);
+    darray_pop_exact(ent1->forward, ent2);
     for (size_t j = 0; j < ent2->forward->len; j++) {
-        entry *entj = darray_get(ent2->forward, j);
-        darray_search(ent1->forward, entj, compare_ptr, &idx);
-        darray_pop(ent1->forward, idx);
+        darray_pop_exact(ent1->forward, darray_get(ent2->forward, j));
     }
     for (size_t i = 0; i < ent1->backward->len; i++) {
         entry *enti = darray_get(ent1->backward, i);
-        darray_search(enti->forward, ent2, compare_ptr, &idx);
-        darray_pop(enti->forward, idx);
+        darray_pop_exact(enti->forward, ent2);
         for (size_t j = 0; j < ent2->forward->len; j++) {
-            entry *entj = darray_get(ent2->forward, j);
-            darray_search(enti->forward, entj, compare_ptr, &idx);
-            darray_pop(enti->forward, idx);
+            darray_pop_exact(enti->forward, darray_get(ent2->forward, j));
         }
     }
-    darray_search(ent2->backward, ent1, compare_ptr, &idx);
-    darray_pop(ent2->backward, idx);
+    darray_pop_exact(ent2->backward, ent1);
     for (size_t j = 0; j < ent1->backward->len; j++) {
-        entry *entj = darray_get(ent1->backward, j);
-        darray_search(ent2->backward, entj, compare_ptr, &idx);
-        darray_pop(ent2->backward, idx);
+        darray_pop_exact(ent2->backward, darray_get(ent1->backward, j));
     }
     for (size_t i = 0; i < ent2->forward->len; i++) {
         entry *enti = darray_get(ent2->forward, i);
-        darray_search(enti->backward, ent1, compare_ptr, &idx);
-        darray_pop(enti->backward, idx);
+        darray_pop_exact(enti->backward, ent1);
         for (size_t j = 0; j < ent1->backward->len; j++) {
-            entry *entj = darray_get(ent1->backward, j);
-            darray_search(enti->backward, entj, compare_ptr, &idx);
-            darray_pop(enti->backward, idx);
+            darray_pop_exact(enti->backward, darray_get(ent1->backward, j));
         }
     }
 }
@@ -915,18 +920,19 @@ void command_set(char *args, darray *snapshots, darray *entries) {
     entry *ent;
     exist = darray_search(entries, key, (comparator) entry_has_key, &idx);
     if (exist) {
-        entry_deref_all(darray_get(entries, idx));
-        darray_pop(entries, idx);
+        ent = darray_get(entries, idx);
+        entry_deref_all(ent);
+        darray_clear(ent->elements);
+    } else {
+        ent = new_entry(key);
     }
-
-    ent = new_entry(key);
 
     if (!darray_extend(ent->elements, elements)) {
         printf("out of memory\n");
         return;
     }
 
-    if (!darray_insert(entries, idx, ent)) {
+    if (!exist && !darray_insert(entries, idx, ent)) {
         printf("out of memory\n");
         return;
     }
