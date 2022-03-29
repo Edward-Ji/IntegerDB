@@ -662,7 +662,10 @@ entry *_entry_find_copy(entry *ent, darray *entries) {
     }
 
     size_t idx;
-    darray_search(pool, ent->key, (comparator) entry_has_key, &idx);
+    if (!darray_search(pool, ent->key, (comparator) entry_has_key, &idx)) {
+        return NULL;
+    }
+
     return darray_get(pool, idx);
 }
 
@@ -890,7 +893,9 @@ void command_del(char *args, darray *snapshots, darray *entries) {
     }
 
     size_t idx;
-    darray_search(entries, ent, compare_ptr, &idx);
+    if (!darray_search(entries, ent, compare_ptr, &idx)) {
+        return;
+    }
     entry_deref_all(ent);
     darray_pop(entries, idx);
 
