@@ -64,7 +64,7 @@ int _darray_resize(darray *arrp, size_t len) {
             cap *= 2;
         }
     } else {
-        while (len <= cap / 2 && cap > 1) {
+        while (len < cap / 2 && cap > 1) {
             cap /= 2;
         }
     }
