@@ -3,7 +3,7 @@ snapshot
 del a
 snapshot
 list snapshots
-rollback
+rollback 1
 list entries
 list snapshots
 bye

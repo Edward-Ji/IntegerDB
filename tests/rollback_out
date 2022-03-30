@@ -6,14 +6,13 @@
 
 > saved as snapshot 2
 
+> 2
+1
+
+> ok
+
+> a []
+
 > 1
-2
-
-> index out of range
-
-> no entries
-
-> 1
-2
 
 > bye

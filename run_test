@@ -3,9 +3,12 @@
 test_dir='./tests'
 
 for in_file in $(find "${test_dir}" -name '*_in'); do
+    echo "Test $(basename $in_file _in)"
     out_file=${in_file/_in/_out}
     ./ymirdb_cov < "${in_file}" | diff "${out_file}" -
-    if [[ $? ]]; then
-        echo "passed $(basename $in_file .in)"
+    if [[ $? -eq 0 ]]; then
+        echo "    passed"
+    else
+        echo "    failed"
     fi
 done
