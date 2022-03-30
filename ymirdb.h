@@ -12,13 +12,6 @@ typedef void *(*unary)(void *);
 
 typedef struct darray darray;
 
-typedef void (*consumer)(void *);
-typedef void (*aggregate)(const void *, void *);
-typedef int (*comparator)(const void *, const void *);
-typedef void *(*unary)(void *);
-
-typedef struct darray darray;
-
 /*
  * Creates a new dynamic array with items of a generic size. The free function
  * pointer must be provided to free any allocated memory of the items.
