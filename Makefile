@@ -10,8 +10,11 @@ SRC = ymirdb.c
 all: $(TARGET)
 
 cov: $(COVTARGET)
-	./run_test
+	./run_test ./$(COVTARGET)
 	gcov $(COVTARGET)-$(SRC)
+
+test: $(TARGET)
+	./run_test ./$(TARGET)
 
 $(COVTARGET): $(SRC)
 	$(CC) $(CFLAGS) $(COVFLAGS) $^ -o $@
