@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O2 -g -Wall -Wvla -Werror -std=gnu11
-SANFLAGS = -fsanitize=address,leak -static-libasan
+SANFLAGS = -fsanitize=address,leak
 COVFLAGS = -fprofile-arcs -ftest-coverage
 
 TARGET = ymirdb
