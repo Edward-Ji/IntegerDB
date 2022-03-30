@@ -11,7 +11,7 @@ all: $(TARGET)
 
 cov: $(COVTARGET)
 	./run_test
-	gcov $(SRC)
+	gcov $(COVTARGET)-$(SRC)
 
 $(COVTARGET): $(SRC)
 	$(CC) $(CFLAGS) $(COVFLAGS) $^ -o $@
