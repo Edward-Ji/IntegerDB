@@ -200,11 +200,12 @@ entry *entry_find_copy(entry *ent);
 void del_entry(entry *ent);
 
 /*
- * Purges entry with the given key from the array of entries only when the entry
- * has no backward references. Returns 0 if the key exists but the purge is
- * unsuccessful.
+ * The entries_can_purge function returns 0 if the key exists but can not purge.
+ * The purge function deletes the entry with the given key from the array of
+ * entries only when the entry has no backward references.
  */
-int entries_purge_key(darray *entries, char *key);
+int entries_can_purge_key(darray *entries, char *key);
+void entries_purge_key(darray *entries, char *key);
 
 /*
  * Creates a deep copy array of the given entries. All new entries are
