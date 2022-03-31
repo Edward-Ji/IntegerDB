@@ -351,7 +351,7 @@ darray *darray_clone(darray *arrp, unary fp) {
 
     memcpy(clonep, arrp, sizeof(darray));
 
-    clonep->itempp = (void **) malloc(sizeof(void *) * clonep->len);
+    clonep->itempp = (void **) malloc(sizeof(void *) * clonep->cap);
     for (size_t i = 0; i < clonep->len; i++) {
         clonep->itempp[i] = fp(arrp->itempp[i]);
     }
@@ -1007,6 +1007,9 @@ void command_append(char *args, darray *snapshots, darray *entries) {
     }
 
     darray *elements = parse_elements(&args, entries, ent);
+    if (elements == NULL) {
+        return;
+    }
     if (!darray_extend(ent->elements, elements)) {
         printf("out of memory\n");
         return;
