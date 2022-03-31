@@ -812,7 +812,7 @@ darray *parse_elements(char **strp, darray *entries, entry *self) {
     while ((token = strsep(strp, WHITESPACE)) != NULL) {
         int num;
         element *ele;
-        if (isdigit(*token)) {
+        if (isdigit(*token) || *token == '-') {
             if (parse_int(token, &num)) {
                 ele = new_int_ele(num);
             } else {
