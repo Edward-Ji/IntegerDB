@@ -815,17 +815,17 @@ darray *parse_elements(char **strp, darray *entries, entry *self) {
             }
         }
         else {
+            if (strcmp(token, self->key) == 0) {
+                printf("not permitted\n");
+                del_darray(elements);
+                return NULL;
+            }
             if (!darray_search(entries, token, (comparator) entry_has_key, &idx)) {
                 printf("no such key\n");
                 del_darray(elements);
                 return NULL;
             }
             entry *ent = darray_get(entries, idx);
-            if (ent == self) {
-                printf("not permitted\n");
-                del_darray(elements);
-                return NULL;
-            }
             ele = new_ent_ele(ent);
         }
         darray_append(elements, ele);
@@ -1193,6 +1193,7 @@ void command_rev(char *args, darray *snapshots, darray *entries) {
 
     if (!entry_is_simple(ent)) {
         printf("entry is not simple\n");
+        return;
     }
 
     darray_reverse(ent->elements);
@@ -1208,6 +1209,7 @@ void command_uniq(char *args, darray *snapshots, darray *entries) {
 
     if (!entry_is_simple(ent)) {
         puts("entry is not simple");
+        return;
     }
 
     darray_unique(ent->elements, (comparator) element_int_cmp);
@@ -1223,6 +1225,7 @@ void command_sort(char *args, darray *snapshots, darray *entries) {
 
     if (!entry_is_simple(ent)) {
         puts("entry is not simple");
+        return;
     }
 
     darray_sort(ent->elements, (comparator) element_int_cmp);
