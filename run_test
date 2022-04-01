@@ -3,13 +3,24 @@
 binary="$1"
 test_dir='./tests'
 
+declare -i passed=0
+declare -i failed=0
+
 for in_file in $(find "${test_dir}" -name '*_in'); do
     echo "Test $(basename $in_file _in)"
     out_file=${in_file/%_in/_out}
     ${binary} < "${in_file}" | diff "${out_file}" -
     if [[ $? -eq 0 ]]; then
         echo "    passed"
+        (( passed++ ))
     else
         echo "    failed"
+        (( failed++ ))
     fi
 done
+
+echo
+echo "Summary"
+echo "    passed: ${passed}"
+echo "    failed: ${failed}"
+echo "    total: $((passed + failed))"
