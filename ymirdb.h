@@ -150,8 +150,6 @@ element *new_ent_ele(entry *ent);
 
 void element_print(element *ele);
 
-int element_has_type(const element *ele, ele_type *type);
-
 int element_int_cmp(const element *ele1, const element *ele2);
 
 void element_agg_min(const element *ele, int *min);

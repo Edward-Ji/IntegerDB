@@ -455,10 +455,6 @@ void element_print(element *ele) {
     }
 }
 
-int element_has_type(const element *ele, ele_type *type) {
-    return ele->type != *type;
-}
-
 int element_int_cmp(const element *ele1, const element *ele2) {
     int num1 = ele1->value.num;
     int num2 = ele2->value.num;
@@ -723,9 +719,6 @@ void entries_purge_key(darray *entries, char *key) {
         return;
     }
     ent = darray_get(entries, idx);
-    if (ent->backward->len != 0) {
-        return;
-    }
     darray_search(entries, ent, compare_ptr, &idx);
     entry_deref_all(ent);
     darray_pop(entries, idx);
@@ -905,9 +898,7 @@ void command_del(char *args, darray *snapshots, darray *entries) {
     }
 
     size_t idx;
-    if (!darray_search(entries, ent, compare_ptr, &idx)) {
-        return;
-    }
+    darray_search(entries, ent, compare_ptr, &idx);
     entry_deref_all(ent);
     darray_pop(entries, idx);
 
