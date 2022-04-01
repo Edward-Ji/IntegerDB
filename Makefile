@@ -1,7 +1,10 @@
 CC = gcc
-CFLAGS = -O2 -g -Wall -Wvla -Werror -std=gnu11
-SANFLAGS = -fsanitize=address,leak
-COVFLAGS = -fprofile-arcs -ftest-coverage
+VALGRIND = valgrind -q --leak-check=full
+GCOV = gcov -m
+RUN_TEST = ./run_test
+
+CFLAGS = -Wall -Wvla -Werror -std=gnu11
+COVFLAGS = -g --coverage
 
 TARGET = ymirdb
 COVTARGET = ymirdb_cov
@@ -10,17 +13,18 @@ SRC = ymirdb.c
 all: $(TARGET)
 
 cov: $(COVTARGET)
-	./run_test ./$(COVTARGET)
-	gcov $(COVTARGET)-$(SRC)
+	$(RUN_TEST) ./$(COVTARGET)
+	$(GCOV) $(SRC)
 
 test: $(TARGET)
-	./run_test ./$(TARGET)
+	$(RUN_TEST) "$(VALGRIND) ./$(TARGET)"
 
 $(COVTARGET): $(SRC)
-	$(CC) $(CFLAGS) $(COVFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $(COVFLAGS) $^ -c
+	$(CC) $(CFLAGS) $(COVFLAGS) $(^:.c=.o) -o $@
 
 $(TARGET): $(SRC)
-	$(CC) $(CFLAGS) $(SANFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
 	rm -f *.o *.gc* $(TARGET) $(COVTARGET)
