@@ -4,4 +4,6 @@ pluck b
 pluck a
 pluck a 1
 get a
+set b a
+pluck b 1
 bye

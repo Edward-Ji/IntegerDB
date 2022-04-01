@@ -1,5 +1,7 @@
 snapshot
-list snapshot
+list snapshots
 drop
-list snapshot
+drop 1
+drop 1
+list snapshots
 bye

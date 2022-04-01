@@ -1,4 +1,5 @@
 set a
+forward a
 set b a
 forward
 forward c

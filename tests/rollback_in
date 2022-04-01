@@ -1,8 +1,9 @@
 set a
 snapshot
 del a
-snapshot
 list snapshots
+rollback
+rollback 2
 rollback 1
 list entries
 list snapshots

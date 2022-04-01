@@ -1,0 +1,12 @@
+list keys
+list entries
+list snapshots
+set a 1
+set b a
+set c 2 b
+snapshot
+list keys
+list entries
+list snapshots
+list invalid
+bye

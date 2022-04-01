@@ -1,9 +1,15 @@
 > ok
 
-> no such key
+> ok
 
-> no such key
+> [7 17 7 17]
 
 > ok
+
+> entry is not simple
+
+> [a]
+
+> no such key
 
 > bye

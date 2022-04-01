@@ -1,14 +1,14 @@
 set a
-set b a
 snapshot
+set b a
 set c b
 snapshot
+del c
+snapshot
+purge a
+purge b
 purge c
-purge b
 purge a
-drop 2
 purge b
-purge a
-drop 1
 purge a
 bye

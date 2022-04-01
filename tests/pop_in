@@ -1,3 +1,6 @@
 set a 1 2 3
 pop a 1
+set a
+pop a
+pop b
 bye

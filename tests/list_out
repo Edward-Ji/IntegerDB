@@ -1,0 +1,27 @@
+> no keys
+
+> no entries
+
+> no snapshots
+
+> ok
+
+> ok
+
+> ok
+
+> saved as snapshot 1
+
+> c
+b
+a
+
+> c [2 b]
+b [a]
+a [1]
+
+> 1
+
+> invalid list command
+
+> bye
