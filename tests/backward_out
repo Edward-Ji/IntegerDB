@@ -1,11 +1,13 @@
 > ok
 
+> nil
+
 > ok
 
 > no such key
 
 > no such key
 
-> nil
+> b
 
 > bye

@@ -4,10 +4,11 @@
 
 > ok
 
-> saved as snapshot 2
+> 1
 
-> 2
-1
+> index out of range
+
+> no such snapshot
 
 > ok
 

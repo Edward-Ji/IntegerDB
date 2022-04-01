@@ -1,5 +1,6 @@
 set a
-set b
+backward a
+set b a
 backward
 backward c
 backward a

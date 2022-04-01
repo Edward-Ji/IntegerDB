@@ -1,0 +1,5 @@
+set
+set a 1x
+set a b
+set a a
+bye

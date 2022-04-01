@@ -1,5 +1,8 @@
-set a 1 2 2 3 3 3
-uniq
-uniq b
+set a 7 7 7 17 7 7 7 17
 uniq a
+get a
+set b a
+uniq b
+get b
+uniq c
 bye

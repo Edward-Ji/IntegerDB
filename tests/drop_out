@@ -1,9 +1,13 @@
 > saved as snapshot 1
 
-> invalid list command
+> 1
 
 > index out of range
 
-> invalid list command
+> ok
+
+> no such snapshot
+
+> no snapshots
 
 > bye

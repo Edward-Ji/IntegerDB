@@ -1,8 +1,8 @@
 > ok
 
-> ok
-
 > saved as snapshot 1
+
+> ok
 
 > ok
 
@@ -10,15 +10,15 @@
 
 > ok
 
-> ok
+> saved as snapshot 3
+
+> not permitted
+
+> not permitted
 
 > ok
 
-> ok
-
-> ok
-
-> ok
+> not permitted
 
 > ok
 
