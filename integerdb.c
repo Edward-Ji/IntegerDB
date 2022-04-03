@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "help.h"
-#include "ymirdb.h"
+#include "integerdb.h"
 
 #define KEYLEN (16)
 #define BUFLEN (1024)

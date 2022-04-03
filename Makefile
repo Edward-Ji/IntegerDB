@@ -6,9 +6,9 @@ RUN_TEST = ./run_test
 CFLAGS = -Wall -Wvla -Werror -std=gnu11
 COVFLAGS = -g --coverage
 
-TARGET = ymirdb
-COVTARGET = ymirdb_cov
-SRC = ymirdb.c
+TARGET = integerdb
+COVTARGET = $(TARGET)_cov
+SRC = integerdb.c
 
 all: $(TARGET)
 

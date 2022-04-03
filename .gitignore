@@ -57,8 +57,8 @@ dkms.conf
 *.gcno
 
 # Compiled executables
-ymirdb
-ymirdb_cov
+integerdb
+integerdb_cov
 
 # Vim session file
 Session.vim
