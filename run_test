@@ -24,3 +24,5 @@ echo "Summary"
 echo "    passed: ${passed}"
 echo "    failed: ${failed}"
 echo "    total: $((passed + failed))"
+
+exit $failed
