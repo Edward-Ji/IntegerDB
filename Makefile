@@ -1,5 +1,9 @@
 CC = gcc
+ifeq (, $(shell which valgrind))
+$(echo "valgrind not available, can not detect memory leaks")
+else
 VALGRIND = valgrind -q --leak-check=full
+endif
 GCOV = gcov -m
 RUN_TEST = ./run_test
 
