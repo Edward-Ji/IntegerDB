@@ -1,0 +1,14 @@
+set a
+set b a
+backward a
+forward b
+push b a
+backward a
+forward b
+pop b
+backward a
+forward b
+pop b
+backward a
+forward b
+bye

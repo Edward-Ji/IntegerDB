@@ -1,0 +1,19 @@
+set a 1
+snapshot
+set b 2 a
+snapshot
+set c 3 b
+snapshot
+set d 4 c
+snapshot
+del d
+snapshot
+drop 4
+purge c
+rollback 3
+list entries
+checkout 1
+list entries
+del a
+list entries
+bye
