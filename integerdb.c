@@ -949,17 +949,26 @@ void command_set(char *args, darray *snapshots, darray *entries) {
     }
 
     darray *elements;
+    char error = 0;
     if ((elements = parse_elements(&args, entries, ent)) == NULL) {
-        return;
+        error = 1;
     }
 
     if (!darray_extend(ent->elements, elements)) {
         printf("out of memory\n");
-        return;
+        error = 1;
     }
 
     if (!exist && !darray_insert(entries, idx, ent)) {
         printf("out of memory\n");
+        error = 1;
+    }
+
+    if (error) {
+        del_darray(elements);
+        if (!exist) {
+            del_entry(ent);
+        }
         return;
     }
 
@@ -981,6 +990,7 @@ void command_push(char *args, darray *snapshots, darray *entries) {
     darray_reverse(elements);
     if (!darray_extend_at(ent->elements, 0, elements)) {
         printf("out of memory\n");
+        del_darray(elements);
         return;
     }
 
@@ -1003,6 +1013,7 @@ void command_append(char *args, darray *snapshots, darray *entries) {
     }
     if (!darray_extend(ent->elements, elements)) {
         printf("out of memory\n");
+        del_darray(elements);
         return;
     }
 
