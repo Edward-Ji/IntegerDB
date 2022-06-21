@@ -1,5 +1,5 @@
 # IntegerDB
-[![Makefile CI](https://github.com/Edward-Ji/IntegerDB/actions/workflows/makefile.yml/badge.svg?branch=main)](https://github.com/Edward-Ji/IntegerDB/actions/workflows/makefile.yml)
+[![Tests](https://github.com/Edward-Ji/IntegerDB/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Edward-Ji/IntegerDB/actions/workflows/tests.yml)
 
 A command line database with linked integer entries
 
