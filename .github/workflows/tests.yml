@@ -12,8 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
     - name: configure
       run: ./configure
 
