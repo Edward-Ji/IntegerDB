@@ -12,7 +12,7 @@ COVFLAGS = -g --coverage
 
 TARGET = integerdb
 COVTARGET = $(TARGET)_cov
-SRC = integerdb.c
+SRC = darray.c integerdb.c
 
 all: $(TARGET)
 

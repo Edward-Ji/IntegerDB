@@ -1,7 +1,6 @@
 /*
- * COMP2017 - assignment 2
- * Ziao Ji (Edward)
- * ziji4098
+ * Author: Edwawrd Ji
+ * Date: 04 Apr 2022
  */
 
 #include <ctype.h>
@@ -10,379 +9,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "darray.h"
+
 #include "help.h"
 #include "integerdb.h"
 
 #define KEYLEN (16)
 #define BUFLEN (1024)
 #define WHITESPACE " \t\r\n\v\f"
-
-/* Dynamic array of void pointers */
-
-struct darray {
-    void **itempp;
-    consumer item_free;
-    size_t len;
-    size_t cap;
-};
-
-darray *new_darray(consumer item_free) {
-    darray *arrp = malloc(sizeof(darray));
-    if (arrp != NULL) {
-        arrp->item_free = item_free;
-        arrp->len = 0;
-        arrp->cap = 1;
-        arrp->itempp = malloc(sizeof(void *) * arrp->cap);
-        if (arrp->itempp == NULL) {
-            return NULL;
-        }
-    }
-
-    return arrp;
-}
-
-int darray_set_item_free(darray *arrp, consumer item_free) {
-    if (arrp == NULL) {
-        return 0;
-    }
-
-    arrp->item_free = item_free;
-
-    return 1;
-}
-
-int _darray_resize(darray *arrp, size_t len) {
-    if (arrp == NULL) {
-        return 0;
-    }
-
-    void **itempp = arrp->itempp;
-    size_t cap = arrp->cap;
-
-    if (len > cap) {
-        while (len > cap) {
-            cap *= 2;
-        }
-    } else {
-        while (len < cap / 2 && cap > 1) {
-            cap /= 2;
-        }
-    }
-    if (cap != arrp->cap) {
-        itempp = realloc(itempp, sizeof(void *) * cap);
-        if (itempp == NULL) {
-            return 0;
-        }
-        arrp->itempp = itempp;
-        arrp->cap = cap;
-    }
-
-    return arrp->cap;
-}
-
-size_t darray_len(darray *arrp) {
-    return arrp->len;
-}
-
-int darray_foreach(darray *arrp, consumer fp) {
-    if (arrp == NULL || fp == NULL) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < arrp->len; i++) {
-        fp(arrp->itempp[i]);
-    }
-
-    return 1;
-}
-
-void darray_aggregate(darray *arrp, void *resp, aggregate fp) {
-    if (arrp == NULL || fp == NULL) {
-        return;
-    }
-
-    for (size_t i = 0; i < arrp->len; i++) {
-        fp(arrp->itempp[i], resp);
-    }
-}
-
-int darray_append(darray *arrp, void *itemp) {
-    if (arrp == NULL || itemp == NULL) {
-        return 0;
-    }
-
-    if (!_darray_resize(arrp, arrp->len + 1)) {
-        return 0;
-    }
-
-    arrp->itempp[arrp->len] = itemp;
-
-    arrp->len++;
-
-    return 1;
-}
-
-void *darray_get(darray *arrp, size_t index) {
-    if (arrp == NULL || index >= arrp->len) {
-        return NULL;
-    }
-
-    return arrp->itempp[index];
-}
-
-int darray_pop(darray *arrp, size_t index) {
-    if (arrp == NULL || index >= arrp->len) {
-        return 0;
-    }
-
-    if (arrp->item_free != NULL) {
-        arrp->item_free(arrp->itempp[index]);
-    }
-    memmove(arrp->itempp + index,
-            arrp->itempp + index + 1,
-            sizeof(void *) * (arrp->len - index - 1));
-    if (!_darray_resize(arrp, arrp->len - 1)) {
-        return 0;
-    }
-
-    arrp->len--;
-
-    return 1;
-}
-
-int _compare_voidp(const void *p1, const void *p2) {
-    return p1 != p2;
-}
-
-int darray_pop_exact(darray *arrp, void *itemp) {
-    if (arrp == NULL) {
-        return 0;
-    }
-
-    size_t idx;
-    if (!darray_search(arrp, itemp, _compare_voidp, &idx)) {
-        return 0;
-    }
-    darray_pop(arrp, idx);
-
-    return 1;
-}
-
-int darray_pop_range(darray *arrp, size_t start, size_t end) {
-    if (arrp == NULL || start > end || end > arrp->len) {
-        return 0;
-    }
-
-    if (arrp->item_free != NULL) {
-        for (size_t i = start; i < end; i++) {
-            arrp->item_free(arrp->itempp[i]);
-        }
-    }
-    memmove(arrp->itempp + start,
-            arrp->itempp + end,
-            sizeof(void *) * (arrp->len - end));
-    if (!_darray_resize(arrp, arrp->len - (end - start))) {
-        return 0;
-    }
-
-    arrp->len -= end - start;
-
-    return 1;
-}
-
-int darray_insert(darray *arrp, size_t index, void *itemp) {
-    if (arrp == NULL || index > arrp->len || itemp == NULL) {
-        return 0;
-    }
-
-    if (!_darray_resize(arrp, arrp->len + 1)) {
-        return 0;
-    }
-    memmove(arrp->itempp + index + 1,
-            arrp->itempp + index,
-            sizeof(void *) * (arrp->len - index));
-
-    arrp->itempp[index] = itemp;
-
-    arrp->len++;
-
-    return 1;
-}
-
-int darray_search(darray *arrp, void *itemp, comparator fp, size_t *indexp) {
-    if (arrp == NULL || itemp == NULL || fp == NULL || indexp == NULL) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < arrp->len; i++) {
-        if (fp(arrp->itempp[i], itemp) == 0) {
-            *indexp = i;
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-int darray_extend_at(darray *arrp1, size_t index, darray *arrp2) {
-    if (arrp1 == NULL || index > arrp1->len || arrp2 == NULL) {
-        return 0;
-    }
-
-    if (!_darray_resize(arrp1, arrp1->len + arrp2->len)) {
-        return 0;
-    }
-    memmove(arrp1->itempp + index + arrp2->len,
-            arrp1->itempp + index,
-            sizeof(void *) * (arrp1->len - index));
-
-    for (size_t i = 0; i < arrp2->len; i++) {
-        arrp1->itempp[index + i] = darray_get(arrp2, i);
-    }
-
-    arrp1->len += arrp2->len;
-
-    return 1;
-}
-
-int darray_extend(darray *arrp1, darray *arrp2) {
-    if (arrp1 == NULL || arrp2 == NULL) {
-        return 0;
-    }
-
-    if (!_darray_resize(arrp1, arrp1->len + arrp2->len)) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < arrp2->len; i++) {
-        arrp1->itempp[arrp1->len + i] = darray_get(arrp2, i);
-    }
-
-    arrp1->len += arrp2->len;
-
-    return 1;
-}
-
-int darray_reverse(darray *arrp) {
-    if (arrp == NULL) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < arrp->len / 2; i++) {
-        void *temp = arrp->itempp[i];
-        arrp->itempp[i] = arrp->itempp[arrp->len - i - 1];
-        arrp->itempp[arrp->len - i - 1] = temp;
-    }
-
-    return 1;
-}
-
-int darray_unique(darray *arrp, comparator fp) {
-    if (arrp == NULL || fp == NULL) {
-        return 0;
-    }
-
-    void **itempp = arrp->itempp;
-    size_t m = 1;
-    size_t i = 1;
-    for (; i < arrp->len; i++) {
-        if (fp(itempp[i-1], itempp[i]) != 0) {
-            if (!darray_pop_range(arrp, m, i)) {
-                return 0;
-            }
-            i -= i - m;
-            m = i + 1;
-        }
-    }
-    if (!darray_pop_range(arrp, m, i)) {
-        return 0;
-    }
-
-    return 1;
-}
-
-void _swap_voidp(void **pp1, void **pp2) {
-    void *temp = *pp1;
-    *pp1 = *pp2;
-    *pp2 = temp;
-}
-
-ssize_t _partition(void **itempp, ssize_t low, ssize_t high, comparator cmp) {
-    void *pivot = itempp[high];
-    ssize_t i = low - 1;
-
-    for (ssize_t j = low; j < high; j++) {
-        if (cmp(itempp[j], pivot) < 0) {
-            i++;
-            _swap_voidp(itempp + i, itempp + j);
-        }
-    }
-    _swap_voidp(itempp + (i + 1), itempp + high);
-    return i + 1;
-}
-
-void _darray_qsort(void **itempp, ssize_t low, ssize_t high, comparator cmp) {
-    if (low < high) {
-        ssize_t pivot_i = _partition(itempp, low, high, cmp);
-
-        _darray_qsort(itempp, low, pivot_i - 1, cmp);
-        _darray_qsort(itempp, pivot_i + 1, high, cmp);
-    }
-}
-
-int darray_sort(darray *arrp, comparator fp) {
-    if (arrp == NULL || fp == NULL) {
-        return 0;
-    }
-
-    if (arrp->len > 0) {
-        _darray_qsort(arrp->itempp, 0, arrp->len - 1, fp);
-    }
-
-    return 1;
-}
-
-darray *darray_clone(darray *arrp, unary fp) {
-    if (arrp == NULL || fp == NULL) {
-        return NULL;
-    }
-
-    darray *clonep = (darray *) malloc(sizeof(darray));
-
-    memcpy(clonep, arrp, sizeof(darray));
-
-    clonep->itempp = (void **) malloc(sizeof(void *) * clonep->cap);
-    for (size_t i = 0; i < clonep->len; i++) {
-        clonep->itempp[i] = fp(arrp->itempp[i]);
-    }
-
-    return clonep;
-}
-
-int darray_clear(darray *arrp) {
-    if (arrp == NULL) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < arrp->len; i++) {
-        if (arrp->item_free != NULL) {
-            arrp->item_free(arrp->itempp[i]);
-        }
-    }
-    arrp->len = 0;
-
-    return 1;
-}
-
-void del_darray(darray *arrp) {
-    if (arrp == NULL) {
-        return;
-    }
-
-    darray_clear(arrp);
-    free(arrp->itempp);
-    free(arrp);
-}
 
 /* Pointer helper functions */
 
@@ -392,8 +26,8 @@ int compare_ptr(const void *p1, const void *p2) {
     return 0;
 }
 
-void *clone_ptr(void *p) {
-    return p;
+void *clone_ptr(const void *p) {
+    return (void *) p;
 }
 
 /* Database */
@@ -532,10 +166,10 @@ void entry_print_key(entry *ent) {
 
 void entry_print_nokey(entry *ent) {
     printf("[");
-    if (ent->elements->len != 0) {
+    if (darray_len(ent->elements) != 0) {
         element_print(darray_get(ent->elements, 0));
     }
-    for (size_t i = 1; i < ent->elements->len; i++) {
+    for (size_t i = 1; i < darray_len(ent->elements); i++) {
         putchar(' ');
         element_print(darray_get(ent->elements, i));
     }
@@ -562,47 +196,65 @@ int entry_key_cmp(const entry *ent1, const entry *ent2) {
 void entry_add_ref(entry *ent1, entry *ent2) {
     darray_append(ent1->forward, ent2);
     darray_extend(ent1->forward, ent2->forward);
-    for (size_t i = 0; i < ent1->backward->len; i++) {
+    for (size_t i = 0; i < darray_len(ent1->backward); i++) {
         entry *ent = darray_get(ent1->backward, i);
         darray_append(ent->forward, ent2);
         darray_extend(ent->forward, ent2->forward);
     }
     darray_append(ent2->backward, ent1);
     darray_extend(ent2->backward, ent1->backward);
-    for (size_t i = 0; i < ent2->forward->len; i++) {
+    for (size_t i = 0; i < darray_len(ent2->forward); i++) {
         entry *ent = darray_get(ent2->forward, i);
         darray_append(ent->backward, ent1);
         darray_extend(ent->backward, ent1->backward);
     }
 }
 
+int _compare_voidp(const void *p1, const void *p2) {
+    return p1 != p2;
+}
+
+int darray_pop_exact(darray *arrp, void *itemp) {
+    if (arrp == NULL) {
+        return 0;
+    }
+
+    size_t idx;
+    if (!darray_search(arrp, itemp, _compare_voidp, &idx)) {
+        return 0;
+    }
+    darray_pop(arrp, idx);
+
+    return 1;
+}
+
 void entry_del_ref(entry *ent1, entry *ent2) {
     darray_pop_exact(ent1->forward, ent2);
-    for (size_t j = 0; j < ent2->forward->len; j++) {
+    for (size_t j = 0; j < darray_len(ent2->forward); j++) {
         darray_pop_exact(ent1->forward, darray_get(ent2->forward, j));
     }
-    for (size_t i = 0; i < ent1->backward->len; i++) {
+    for (size_t i = 0; i < darray_len(ent1->backward); i++) {
         entry *enti = darray_get(ent1->backward, i);
         darray_pop_exact(enti->forward, ent2);
-        for (size_t j = 0; j < ent2->forward->len; j++) {
+        for (size_t j = 0; j < darray_len(ent2->forward); j++) {
             darray_pop_exact(enti->forward, darray_get(ent2->forward, j));
         }
     }
     darray_pop_exact(ent2->backward, ent1);
-    for (size_t j = 0; j < ent1->backward->len; j++) {
+    for (size_t j = 0; j < darray_len(ent1->backward); j++) {
         darray_pop_exact(ent2->backward, darray_get(ent1->backward, j));
     }
-    for (size_t i = 0; i < ent2->forward->len; i++) {
+    for (size_t i = 0; i < darray_len(ent2->forward); i++) {
         entry *enti = darray_get(ent2->forward, i);
         darray_pop_exact(enti->backward, ent1);
-        for (size_t j = 0; j < ent1->backward->len; j++) {
+        for (size_t j = 0; j < darray_len(ent1->backward); j++) {
             darray_pop_exact(enti->backward, darray_get(ent1->backward, j));
         }
     }
 }
 
 void entry_ref_all(entry *ent, darray *elements) {
-    for (size_t i = 0; i < elements->len; i++) {
+    for (size_t i = 0; i < darray_len(elements); i++) {
         element *ele = darray_get(elements, i);
         if (ele->type == ENTRY) {
             entry_add_ref(ent, ele->value.entry);
@@ -611,7 +263,7 @@ void entry_ref_all(entry *ent, darray *elements) {
 }
 
 void entry_deref_all(entry *ent) {
-    for (size_t i = 0; i < ent->forward->len; i++) {
+    for (size_t i = 0; i < darray_len(ent->forward); i++) {
         entry_del_ref(ent, darray_get(ent->forward, i));
     }
 }
@@ -683,10 +335,10 @@ void del_entry(entry *ent) {
 
 void print_entry_list(darray *entries) {
     entry *ent_ref;
-    if (entries->len != 0) {
+    if (darray_len(entries) != 0) {
         ent_ref = darray_get(entries, 0);
         fputs(ent_ref->key, stdout);
-        for (size_t i = 1; i < entries->len; i++) {
+        for (size_t i = 1; i < darray_len(entries); i++) {
             printf(", ");
             ent_ref = darray_get(entries, i);
             fputs(ent_ref->key, stdout);
@@ -705,7 +357,7 @@ int entries_can_purge_key(darray *entries, char *key) {
         return 1;
     }
     ent = darray_get(entries, idx);
-    if (ent->backward->len != 0) {
+    if (darray_len(ent->backward) != 0) {
         return 0;
     }
 
@@ -729,7 +381,7 @@ darray *entries_clone(darray *entries) {
 
     entry_find_pool(clone);
 
-    for (size_t i = 0; i < entries->len; i++) {
+    for (size_t i = 0; i < darray_len(entries); i++) {
         entry *ent_ori = darray_get(entries, i);
         entry *ent_cpy = darray_get(clone, i);
 
@@ -855,19 +507,19 @@ void command_help() {
 void command_list(char *args, darray *snapshots, darray *entries) {
     char *what = strsep(&args, WHITESPACE);
     if (strcasecmp(what, "keys") == 0) {
-        if (entries->len == 0) {
+        if (darray_len(entries) == 0) {
             printf("no keys\n");
         } else {
             darray_foreach(entries, (consumer) entry_print_key);
         }
     } else if (strcasecmp(what, "entries") == 0) {
-        if (entries->len == 0) {
+        if (darray_len(entries) == 0) {
             printf("no entries\n");
         } else {
         darray_foreach(entries, (consumer) entry_print);
         }
     } else if (strcasecmp(what, "snapshots") == 0) {
-        if (snapshots->len == 0) {
+        if (darray_len(snapshots) == 0) {
             printf("no snapshots\n");
         } else {
             darray_foreach(snapshots, (consumer) snapshot_print);
@@ -892,7 +544,7 @@ void command_del(char *args, darray *snapshots, darray *entries) {
         printf("no such key\n");
         return;
     }
-    if (ent->backward->len != 0) {
+    if (darray_len(ent->backward) != 0) {
         printf("not permitted\n");
         return;
     }
@@ -912,7 +564,7 @@ void command_purge(char *args, darray *snapshots, darray *entries) {
         printf("not permitted\n");
         return;
     }
-    for (size_t i = 0; i < snapshots->len; i++) {
+    for (size_t i = 0; i < darray_len(snapshots); i++) {
         snapshot *snap = darray_get(snapshots, i);
         if (!entries_can_purge_key(snap->entries, key)) {
             printf("not permitted\n");
@@ -921,7 +573,7 @@ void command_purge(char *args, darray *snapshots, darray *entries) {
     }
 
     entries_purge_key(entries, key);
-    for (size_t i = 0; i < snapshots->len; i++) {
+    for (size_t i = 0; i < darray_len(snapshots); i++) {
         snapshot *snap = darray_get(snapshots, i);
         entries_purge_key(snap->entries, key);
     }
@@ -1032,7 +684,7 @@ void command_pick(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    if (!parse_index(args, ent->elements->len, &idx)) {
+    if (!parse_index(args, darray_len(ent->elements), &idx)) {
         printf("index out of range\n");
         return;
     }
@@ -1051,7 +703,7 @@ void command_pluck(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    if (!parse_index(args, ent->elements->len, &idx)) {
+    if (!parse_index(args, darray_len(ent->elements), &idx)) {
         printf("index out of range\n");
         return;
     }
@@ -1250,7 +902,7 @@ void command_forward(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    if (ent->forward->len == 0) {
+    if (darray_len(ent->forward) == 0) {
         printf("nil\n");
     } else {
         darray *sorted = darray_clone(ent->forward, clone_ptr);
@@ -1270,7 +922,7 @@ void command_backward(char *args, darray *snapshots, darray *entries) {
         return;
     }
 
-    if (ent->backward->len == 0) {
+    if (darray_len(ent->backward) == 0) {
         printf("nil\n");
     } else {
         darray *sorted = darray_clone(ent->backward, clone_ptr);
