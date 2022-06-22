@@ -3,7 +3,7 @@
 
 A command line database with linked integer entries
 
-## Availabel Commands
+## Available Commands
 ```
 BYE   clear database and exit
 HELP  display this help message
